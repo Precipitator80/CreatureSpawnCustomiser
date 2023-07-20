@@ -1,0 +1,6 @@
+H:\SteamLibrary\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\creaturespawncustomiser\CreatureSpawnCustomiser.dll
+H:\SteamLibrary\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\creaturespawncustomiser\CreatureSpawnCustomiser.pdb
+H:\Rain World Game Things\Rain World Mods And Tools\Downpour\Creature Spawn Customiser\CreatureSpawnCustomiser\obj\Debug\CreatureSpawnCustomiser.csprojAssemblyReference.cache
+H:\Rain World Game Things\Rain World Mods And Tools\Downpour\Creature Spawn Customiser\CreatureSpawnCustomiser\obj\Debug\CreatureSpawnCustomiser.csproj.CoreCompileInputs.cache
+H:\Rain World Game Things\Rain World Mods And Tools\Downpour\Creature Spawn Customiser\CreatureSpawnCustomiser\obj\Debug\CreatureSpawnCustomiser.dll
+H:\SteamLibrary\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\creaturespawncustomiser\plugins\CreatureSpawnCustomiser.dll

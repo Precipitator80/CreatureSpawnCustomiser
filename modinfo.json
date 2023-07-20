@@ -1,0 +1,18 @@
+{
+    "id": "creaturespawncustomiser",
+    "name": "Creature Spawn Customiser",
+    "version": "0.1.0",
+    "target_game_version": "v1.9.07b",
+    "authors": "Precipitator",
+    "description": "Allows you to customise creature spawns.",
+    "tags": [
+        "Game Mechanics"
+    ],
+    "requirements": [
+        "keepthatawayfromme"
+    ],
+    "requirements_names": [
+        "KeepThatAwayFromMe"
+    ],
+    "checksum_override_version": true
+}
