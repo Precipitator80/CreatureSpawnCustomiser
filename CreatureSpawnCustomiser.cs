@@ -4,7 +4,6 @@ using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
 using System.Security.Permissions;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using static IconSymbol;
 
@@ -12,7 +11,7 @@ using static IconSymbol;
 
 namespace CreatureSpawnCustomiser
 {
-    [BepInPlugin(PhobiaPlugin.PLUGIN_ID, PhobiaPlugin.PLUGIN_NAME, PhobiaPlugin.PLUGIN_VERSION)] // (GUID, mod name, mod version)
+    [BepInPlugin(CreatureSpawnCustomiserPlugin.PLUGIN_ID, CreatureSpawnCustomiserPlugin.PLUGIN_NAME, CreatureSpawnCustomiserPlugin.PLUGIN_VERSION)] // (GUID, mod name, mod version)
     [BepInProcess("RainWorld.exe")]
     public class CreatureSpawnCustomiserPlugin : BaseUnityPlugin
     {
@@ -47,17 +46,22 @@ namespace CreatureSpawnCustomiser
                 for (int i = 0; i < allNames.Length; i++)
                 { if (PhobiaPlugin.IsValidCritType(allNames[i])) { okayNames.Add(allNames[i]); } }
 
-                critTypesBan = new Configurable<bool>[okayNames.Count];
+                critTypeReplacements = new Configurable<string>[okayNames.Count];
                 for (int j = 0; j < okayNames.Count; j++)
                 {
-                    critTypesBan[j] = oi.config.Bind(CreatureSpawnCustomiserOI.GenerateCritKey(PhobiaPlugin.allCritTypes[j]), false);
+                    critTypeReplacements[j] = oi.config.Bind(CreatureSpawnCustomiserOI.GenerateCritKey(PhobiaPlugin.allCritTypes[j]), PhobiaPlugin.allCritTypes[j].value);
                 }
             }
         }
 
-        private static Configurable<bool>[] critTypesBan = new Configurable<bool>[0];
+        static Dictionary<CreatureTemplate.Type, CreatureTemplate.Type> creatureMapper = new Dictionary<CreatureTemplate.Type, CreatureTemplate.Type>()
+        {
+            {CreatureTemplate.Type.GreenLizard, CreatureTemplate.Type.PinkLizard}
+        };
+        public static Configurable<string>[] critTypeReplacements = new Configurable<string>[0];
         private static bool init = false;
         public static CreatureSpawnCustomiserPlugin instance;
+
 
         public void Patch()
         {
@@ -87,11 +91,6 @@ namespace CreatureSpawnCustomiser
             }
             return type;
         }
-
-        static Dictionary<CreatureTemplate.Type, CreatureTemplate.Type> creatureMapper = new Dictionary<CreatureTemplate.Type, CreatureTemplate.Type>()
-        {
-            {CreatureTemplate.Type.GreenLizard, CreatureTemplate.Type.PinkLizard}
-        };
     }
 
     public class CreatureSpawnCustomiserOI : OptionInterface
@@ -112,19 +111,26 @@ namespace CreatureSpawnCustomiser
             alertSin = new float[] { 0f, 0f };
             Tabs[0].AddItems(new OpRect(new Vector2(30f, 0f), new Vector2(540f, 470f)), lblCritAlert,
                 new OpLabel(new Vector2(50f, 520f), new Vector2(240f, 40f), Translate("Creature List"), FLabelAlignment.Left, true),
-                new OpLabel(new Vector2(100f, 475f), new Vector2(64f, 20f), Translate("BAN"), FLabelAlignment.Center),
+                new OpLabel(new Vector2(100f, 475f), new Vector2(64f, 20f), Translate("REPLACE"), FLabelAlignment.Center),
                 new OpRect(new Vector2(320f, 495f), new Vector2(240f, 80f), 0.2f));
 
             // Main List
             float GetCritOffset(int idx) => (PhobiaPlugin.allCritTypes.Length - idx) * ITEM_INTERVAL - 15.01f;
-            ckCrits = new OpCheckBox[PhobiaPlugin.allCritTypes.Length];
+            ckCrits = new OpComboBox[PhobiaPlugin.allCritTypes.Length];
             idxCrits = new Dictionary<string, int>();
             sbCrits = new OpScrollBox(new Vector2(30f, 0f), new Vector2(540f, 470f), PhobiaPlugin.allCritTypes.Length * ITEM_INTERVAL + 40f, false, false, true);
             Tabs[0].AddItems(sbCrits);
+
+            List<ListItem> creatureListItems = new List<ListItem>();
+            for (int c = 0; c < PhobiaPlugin.allCritTypes.Length; c++)
+            {
+                creatureListItems.Add(new ListItem(PhobiaPlugin.allCritTypes[c].value));
+            }
+
             for (int c = 0; c < PhobiaPlugin.allCritTypes.Length; c++)
             {
                 idxCrits.Add(GenerateCritKey(PhobiaPlugin.allCritTypes[c]), c);
-                ckCrits[c] = new OpCheckBox(PhobiaPlugin.critTypesBan[c], new Vector2(90f, GetCritOffset(c) + 3f));
+                ckCrits[c] = new OpComboBox(CreatureSpawnCustomiserPlugin.critTypeReplacements[c], new Vector2(90f, GetCritOffset(c) + 3f), 150f, creatureListItems);
                 sbCrits.AddItems(ckCrits[c]);
                 IconSymbolData iconData = new IconSymbolData(PhobiaPlugin.allCritTypes[c], AbstractPhysicalObject.AbstractObjectType.Creature, 0);
                 string iconName = CreatureSymbol.SpriteNameOfCreature(iconData);
@@ -137,17 +143,17 @@ namespace CreatureSpawnCustomiser
                 text = Translate(key);
                 if (text == key) text = id;
                 else text += $" ({Translate("MenuModStat_ModID").Replace("<ModID>", id)})";
-                sbCrits.AddItems(new OpLabel(new Vector2(124f, GetCritOffset(c)), new Vector2(160f, ITEM_HEIGHT), text, FLabelAlignment.Left) { bumpBehav = ckCrits[c].bumpBehav });
+                sbCrits.AddItems(new OpLabel(new Vector2(260f, GetCritOffset(c)), new Vector2(160f, ITEM_HEIGHT), text, FLabelAlignment.Left) { bumpBehav = ckCrits[c].bumpBehav });
                 if (c > 0) UIfocusable.MutualVerticalFocusableBind(ckCrits[c], ckCrits[c - 1]);
             }
         }
 
-        internal static string GenerateCritKey(CreatureTemplate.Type type) => $"BanCrit{type.value}";
+        internal static string GenerateCritKey(CreatureTemplate.Type type) => $"ReplaceCrit{type.value}";
 
-        private Dictionary<string, int> idxCrits, idxObjs;
-        private OpCheckBox[] ckCrits, ckObjs;
-        private OpScrollBox sbCrits, sbObjs;
-        private OpLabel lblCritAlert, lblObjAlert;
+        private Dictionary<string, int> idxCrits;
+        private OpComboBox[] ckCrits;
+        private OpScrollBox sbCrits;
+        private OpLabel lblCritAlert;
         private float[] alertAlpha, alertSin;
     }
 }
