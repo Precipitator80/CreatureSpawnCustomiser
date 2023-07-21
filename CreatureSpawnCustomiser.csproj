@@ -65,7 +65,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CreatureSpawnCustomiser.cs" />
+    <Compile Include="CreatureSpawnCustomiserPlugin.cs" />
+    <Compile Include="CreatureSpawnCustomiserOI.cs" />
+    <Compile Include="OpComboBox2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
